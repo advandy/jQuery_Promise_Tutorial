@@ -1,0 +1,197 @@
+<!-- This sample code snippet is based on the following tutorial: http://tutorials.jenkov.com/jquery/deferred-objects.html -->
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> 
+	<title>JQuery Promise Sample</title>
+</head>
+<body>
+	<script type="text/javascript">
+
+
+		/*standard asynchronous function looks without deferred objects. The following example function takes a callback function as parameter which is executed after a certain time delay */
+		function doAsync(callback){
+    		setTimeout(function() { callback(); }, 1000);
+		}
+
+		/*Call the doAsync function*/
+		doAsync(function(){
+			console.log("executed after a delay");
+		});
+
+
+		/*now using jQuery deferred object. since the done and fail function will return promise itself, method chaining is available*/
+
+		function doAsync2(){
+			var deferredObj = $.Deferred();
+			setTimeout(function() {
+		        var randomValue = Math.random();
+		        if(randomValue < 0.5) {
+		            deferredObj.resolve(randomValue);
+		        } else{
+		        	deferredObj.reject(randomValue);
+		        }
+		    }, 1000);
+			return deferredObj;
+		}
+
+		doAsync2()
+		 .done(function(){
+		 	console.log("async2 executed");
+		 })
+		 .fail(function(){
+		 	console.log("async2 failed");
+		 })
+		 .always(function(){
+		 	console.log("always will always executed regardless of either resolved or rejected");
+		 });
+
+
+		 /*The promise object returned by a deferred object contains the following functions you can call:
+
+				done()
+				fail()
+				always()
+				progress()
+				then()
+				state()
+		*/
+
+		/*use then: tale three callbacks: first is called when resolved, second is called when failed, third called when notified*/
+		function doAsync3(){
+			var deferredObj = $.Deferred();
+			setTimeout(function() {
+		        var randomValue = Math.random();
+		        if(randomValue < 0.4) {
+		            deferredObj.resolve(randomValue);
+		        } else if(randomValue<0.6){
+		            deferredObj.reject(randomValue);
+		        }else{
+		        	deferredObj.notify(randomValue);
+		        }
+		    }, 1000);
+			return deferredObj;
+		}
+
+		doAsync3()
+			.then(function(value){
+				console.log("executed with value "+value);
+			}, function(value){
+				console.log("failed with value:"+ value);
+			}, function(value){
+				console.log("notified with value:"+ value);
+			});
+
+		/*use progress */
+
+		function doAsync4(){
+			var deferredObj = $.Deferred();
+			setTimeout(function(){deferredObj.notify(1)},1000);
+			setTimeout(function(){deferredObj.notify(2)},2000);
+			setTimeout(function(){deferredObj.notify(3)},3000);			
+			setTimeout(function(){deferredObj.resolve(4)},4000);
+
+			return deferredObj;
+		}
+
+		doAsync4()
+			.progress(function(value){
+				console.log("progress value: "+value);
+			})
+			.done(function(value){
+				console.log("resolved with value "+value);
+			});
+
+
+		/*use when function if multiple deferred objects are waited to be returned. Only when all the promises are resolved, the done function will be called, otherwise failed*/
+
+		function doAsync5(){
+			var deferredObj = $.Deferred();
+			setTimeout(function() {
+		        var randomValue = Math.random();
+		        if(randomValue < 0.5) {
+		            deferredObj.resolve(randomValue);
+		        } else{
+		        	deferredObj.reject(randomValue);
+		        }
+		    }, 1000);
+			return deferredObj;
+		}
+
+		function doAsync6(){
+			var deferredObj = $.Deferred();
+			setTimeout(function(){deferredObj.notify(1)},1000);
+			setTimeout(function(){deferredObj.notify(2)},2000);
+			setTimeout(function(){deferredObj.notify(3)},3000);			
+			setTimeout(function(){deferredObj.resolve(4)},4000);
+
+			return deferredObj;
+		}
+
+
+
+		$.when(doAsync5(), doAsync6())
+			.done(function(val1, val2){
+				console.log("val1: "+val1);
+				console.log("val2: "+val2);
+			})
+			.fail(function(val1,val2){
+			 	console.log("failed: val1: "+val1+" ,val2: "+val2);
+			})
+
+			function getUserName(id){
+				var promiseObj = $.Deferred();
+				if(id){
+					promiseObj.resolve("user_"+id);
+				}else{
+					promiseObj.reject("invalid id");
+				}
+				return promiseObj;
+			}
+
+
+
+
+
+			/*Some more examples about deferred object usage*/
+
+			function getUser(userName){
+				var promiseObj = $.Deferred();
+				var user = {};
+				user.email = userName+"@sap.com";
+				promiseObj.resolve(user);
+				return promiseObj;
+			}
+
+			getUserName("001")
+				.then(function(name){
+					return getUser(name);
+				})
+				.then(function(user){
+					console.log(user.email);
+				})
+				.fail(function(err){
+					console.log(err);
+				})
+
+
+		    /*nesting then function if the previous arguments are needed*/
+
+			getUserName("002")
+				.then(function(name){
+					return getUser(name)
+						.then(function(user){
+							console.log(name+"'s email:"+ user.email);
+							
+						})
+				})
+
+
+
+
+
+
+
+	</script>
+
+</body>
+</html>
