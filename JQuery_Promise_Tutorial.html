@@ -149,10 +149,7 @@
 			}
 
 
-
-
-
-			/*Some more examples about deferred object usage*/
+			/*One more Example about using jQuery deferred object*/
 
 			function getUser(userName){
 				var promiseObj = $.Deferred();
@@ -169,9 +166,9 @@
 				.then(function(user){
 					console.log(user.email);
 				})
-				.fail(function(err){
+				.fail(function(err){ // previous errors will be propagated down to here!
 					console.log(err);
-				})
+				});
 
 
 		    /*nesting then function if the previous arguments are needed*/
@@ -183,13 +180,7 @@
 							console.log(name+"'s email:"+ user.email);
 							
 						})
-				})
-
-
-
-
-
-
+				});
 
 	</script>
 
